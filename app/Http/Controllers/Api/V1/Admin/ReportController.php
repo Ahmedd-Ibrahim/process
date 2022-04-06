@@ -12,9 +12,9 @@ class ReportController extends Controller
     {
         $report = Transaction::query()
             ->leftJoin('payments', 'transactions.id', '=', 'payments.transaction_id')
-            ->selectRaw('COALESCE(sum(payments.amount),0) as paid')
-            ->selectRaw('COALESCE(sum(CASE WHEN transactions.status = "overdue" THEN payments.amount ELSE 0 END),0) as overdue')
-            ->selectRaw('COALESCE(sum(CASE WHEN transactions.status = "outstanding" THEN payments.amount ELSE 0 END),0) as outstanding')
+            ->selectRaw('COALESCE(sum(payments.amount), 0) as paid')
+            ->selectRaw('COALESCE(sum(CASE WHEN transactions.due > DATE(now()) THEN ifnull(transactions.amount, 0) - ifnull(payments.amount, 0) ElSE 0 END), 0) as outstanding')
+            ->selectRaw('COALESCE(sum(CASE WHEN transactions.due < DATE(now()) THEN ifnull(transactions.amount, 0) - ifnull(payments.amount, 0) ELSE 0 END), 0) as overdue')
             ->whereBetween('transactions.due', [$reportRequest->starting_date, $reportRequest->ending_date])
             ->first();
 
@@ -28,11 +28,11 @@ class ReportController extends Controller
     {
         $report = Transaction::query()
             ->leftJoin('payments', 'transactions.id', '=', 'payments.transaction_id')
-            ->selectRaw('MONTHNAME(due) as month')
+            ->selectRaw('month(due) as month')
             ->selectRaw('year(due) as year')
             ->selectRaw('COALESCE(sum(payments.amount),0) as paid')
-            ->selectRaw('COALESCE(sum(CASE WHEN transactions.status = "overdue" THEN payments.amount ELSE 0 END),0) as overdue')
-            ->selectRaw('COALESCE(sum(CASE WHEN transactions.status = "outstanding" THEN payments.amount ELSE 0 END),0) as outstanding')
+ ->selectRaw('COALESCE(sum(CASE WHEN transactions.due > DATE(now()) THEN ifnull(transactions.amount, 0) - ifnull(payments.amount, 0) ElSE 0 END), 0) as outstanding')
+            ->selectRaw('COALESCE(sum(CASE WHEN transactions.due < DATE(now()) THEN ifnull(transactions.amount, 0) - ifnull(payments.amount, 0) ELSE 0 END), 0) as overdue')
             ->whereBetween('transactions.due', [$reportRequest->starting_date, $reportRequest->ending_date])
             ->orderBy('month')
             ->groupBy('month', 'year')

@@ -10,10 +10,7 @@ class Transaction extends Model
 {
     use HasFactory;
 
-    protected $casts = [
-        'status' => TransactionStatus::class
-    ];
-    protected $fillable = ['category_id', 'subcategory_id', 'amount', 'customer_id', 'due', 'vat', 'is_vat_inclusive', 'status'];
+    protected $fillable = ['category_id', 'subcategory_id', 'amount', 'customer_id', 'due', 'vat', 'is_vat_inclusive'];
 
     public function payments()
     {
@@ -33,23 +30,5 @@ class Transaction extends Model
     public function subcategory()
     {
         return $this->belongsTo(Category::class, 'subcategory_id');
-    }
-
-    public function getStatusattribute()
-    {
-        if (!$this->payments && $this->isTodayGteFromDueDate() || $this->isTodayGteFromDueDate()) {
-            return TransactionStatus::Outstanding;
-        }
-
-        if ($this->payments()->exists() && $this->payments->sum('amount') >= $this->amount) {
-            return TransactionStatus::Paid;
-        }
-
-        return TransactionStatus::Overdue;
-    }
-
-    private function isTodayGteFromDueDate()
-    {
-        return Carbon::create($this->due)->gte(today());
     }
 }

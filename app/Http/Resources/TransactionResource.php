@@ -19,7 +19,6 @@ class TransactionResource extends JsonResource
             'category' => $this->category->name,
             'sub_category' => $this->category->name,
             'amount' => $this->amount,
-            'status' => $this->status,
             'due_on' => $this->due,
         ];
     }

@@ -21,7 +21,6 @@ return new class extends Migration {
             $table->date('due');
             $table->double('vat');
             $table->boolean('is_vat_inclusive');
-            $table->enum('status', ['paid', 'outstanding', 'overdue'])->default('overdue');
             $table->timestamps();
         });
 
